@@ -43,6 +43,14 @@
 #define LOG_ERR(...)   __logger_log(&pd->logger, LOG_ERR,    __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_INF(...)   __logger_log(&pd->logger, LOG_INFO,   __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_WRN(...)   __logger_log(&pd->logger, LOG_WARNING,__FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WRN_ONCE(...) \
+do {\
+  static int warned = 0; \
+  if(!warned) { \
+    __logger_log(&pd->logger, LOG_WARNING,__FILE__, __LINE__, __VA_ARGS__);\
+    warned = 1;\
+  }\
+}while(0)
 #define LOG_NOT(...)   __logger_log(&pd->logger, LOG_NOTICE, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_DBG(...)   __logger_log(&pd->logger, LOG_DEBUG,  __FILE__, __LINE__, __VA_ARGS__)
 
@@ -221,7 +229,7 @@ union osdp_ephemeral_data {
 #define REPLY_OSTATR	0x4A
 #define REPLY_RSTATR	0x4B
 #define REPLY_RAW	0x50
-#define REPLY_FMT	0x51
+#define REPLY_FMT	0x51 /* deprecated */
 #define REPLY_KEYPAD	0x53
 #define REPLY_COM	0x54
 #define REPLY_BIOREADR	0x57
@@ -579,6 +587,10 @@ static inline bool is_data_trace_enabled(struct osdp_pd *pd) {
 static inline bool is_packet_trace_enabled(struct osdp_pd *pd) {
 	return (ISSET_FLAG(pd, OSDP_FLAG_CAPTURE_PACKETS) &&
 	        IS_ENABLED(CONFIG_OSDP_PACKET_TRACE));
+}
+
+static inline bool sc_allow_empty_encrypted_data_block(struct osdp_pd *pd) {
+	return ISSET_FLAG(pd, OSDP_FLAG_ALLOW_EMPTY_ENCRYPTED_DATA_BLOCK);
 }
 
 #endif	/* _OSDP_COMMON_H_ */

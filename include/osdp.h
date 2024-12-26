@@ -73,6 +73,17 @@ extern "C" {
 #define OSDP_FLAG_CAPTURE_PACKETS 0x00100000
 
 /**
+ * @brief Allow an empty encrypted data block(SCS_17 and SCS_18 packets).
+ * This is non-conforming to the standard.  If there is no data to be
+ * transferred, the CP should instead use the SCS_15/SCS_16 messages.
+ * Some OSDP implementations are buggy and send a 0-length data block with
+ * the SCS_17 and SCS_18 messages, this flag accepts that buggy behavior.
+ *
+ * @note this is a PD mode only flag
+ */
+#define OSDP_FLAG_ALLOW_EMPTY_ENCRYPTED_DATA_BLOCK 0x00200000
+
+/**
  * @brief Various PD capability function codes.
  */
 enum osdp_pd_cap_function_code_e {
@@ -173,6 +184,22 @@ enum osdp_pd_cap_function_code_e {
 	 * biometric input
 	 */
 	OSDP_PD_CAP_BIOMETRICS,
+
+	/**
+	 * This capability indicates if the reader is capable of supporting
+	 * Secure Pin Entry (SPE) for smart cards
+	 */
+	OSDP_PD_CAP_SECURE_PIN_ENTRY,
+
+	/**
+	 * This capability indicates the version of OSDP the PD supports
+	 *
+	 * Compliance Levels:
+	 *   0 - Unspecified
+	 *   1 - IEC 60839-11-5
+	 *   2 - SIA OSDP 2.2
+	 */
+	OSDP_PD_CAP_OSDP_VERSION,
 
 	/**
 	 * Capability Sentinel
@@ -714,17 +741,12 @@ struct osdp_cmd {
 enum osdp_event_cardread_format_e {
 	OSDP_CARD_FMT_RAW_UNSPECIFIED, /**< Unspecified card format */
 	OSDP_CARD_FMT_RAW_WIEGAND,     /**< Wiegand card format */
-	OSDP_CARD_FMT_ASCII,           /**< ASCII card format */
+	OSDP_CARD_FMT_ASCII,           /**< ASCII card format (deprecated; don't use) */
 	OSDP_CARD_FMT_SENTINEL         /**< Max card format value */
 };
 
 /**
  * @brief OSDP event cardread
- *
- * @note When @a format is set to OSDP_CARD_FMT_RAW_UNSPECIFIED or
- * OSDP_CARD_FMT_RAW_WIEGAND, the length is expressed in bits. OTOH, when it is
- * set to OSDP_CARD_FMT_ASCII, the length is in bytes. The number of bytes to
- * read from the @a data field must be interpreted accordingly.
  */
 struct osdp_event_cardread {
 	/**
@@ -742,7 +764,7 @@ struct osdp_event_cardread {
 	 */
 	int direction;
 	/**
-	 * Length of card data in bytes or bits depending on @a format
+	 * Length of card data in bits
 	 */
 	int length;
 	/**
@@ -1002,6 +1024,19 @@ int osdp_pd_flush_events(osdp_t *ctx);
  */
 OSDP_EXPORT
 osdp_t *osdp_cp_setup(int num_pd, const osdp_pd_info_t *info);
+
+/**
+ * @brief Adds more PD devices in the CP control list.
+ *
+ * @param num_pd Number of PDs connected to this CP. The `osdp_pd_info_t *` is
+ * treated as an array of length num_pd.
+ * @param info Pointer to info struct populated by application.
+ *
+ * @retval 0 on success
+ * @retval -1 on failure
+ */
+OSDP_EXPORT
+int osdp_cp_add_pd(osdp_t *ctx, int num_pd, const osdp_pd_info_t *info);
 
 /**
  * @brief Periodic refresh method. Must be called by the application at least
