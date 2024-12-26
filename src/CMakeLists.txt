@@ -38,7 +38,7 @@ if (CONFIG_OSDP_STATIC_PD)
 endif()
 
 # optionally, find and use OpenSSL or MbedTLS
-find_package(OpenSSL)
+#find_package(OpenSSL)
 
 if (NOT OpenSSL_FOUND)
 	find_package(MbedTLS)
@@ -100,7 +100,7 @@ endif()
 # objects relocatable by default (?).
 #
 list(APPEND LIB_OSDP_UTILS_SRC
-	${PROJECT_SOURCE_DIR}/utils/src/utils.c
+        ${PROJECT_SOURCE_DIR}/utils/src/utils.c
 	${PROJECT_SOURCE_DIR}/utils/src/list.c
 	${PROJECT_SOURCE_DIR}/utils/src/queue.c
 	${PROJECT_SOURCE_DIR}/utils/src/slab.c
@@ -163,14 +163,16 @@ if (CONFIG_BUILD_SANITIZER)
 	)
 endif()
 
-install(
-	TARGETS ${LIB_OSDP_STATIC}
-	COMPONENT distributables
-	EXPORT LibOSDPTargets
-	LIBRARY DESTINATION ${LIBOSDP_LIBRARY_DIR}
-	ARCHIVE DESTINATION ${LIBOSDP_LIBRARY_DIR}
-	PUBLIC_HEADER DESTINATION include/libosdp
-)
+# TODO: AlexNCoder: вернуть обратно соответствующие install! Сделано исключительно для ускорения сборки под ARM
+
+#install(
+#	TARGETS ${LIB_OSDP_STATIC}
+#	COMPONENT distributables
+#	EXPORT LibOSDPTargets
+#	LIBRARY DESTINATION ${LIBOSDP_LIBRARY_DIR}
+#	ARCHIVE DESTINATION ${LIBOSDP_LIBRARY_DIR}
+#	PUBLIC_HEADER DESTINATION include/libosdp
+#)
 
 endif() # CONFIG_BUILD_STATIC
 
@@ -228,19 +230,19 @@ if (CONFIG_BUILD_SANITIZER)
 	)
 endif()
 
-install(
-	TARGETS ${LIB_OSDP_SHARED}
-	EXPORT LibOSDPTargets
-	LIBRARY
-		COMPONENT distributables
-		DESTINATION ${LIBOSDP_LIBRARY_DIR}
-	ARCHIVE
-		COMPONENT distributables
-		DESTINATION ${LIBOSDP_LIBRARY_DIR}
-	PUBLIC_HEADER
-		COMPONENT headers
-		DESTINATION include/libosdp
-)
+#install(
+#	TARGETS ${LIB_OSDP_SHARED}
+#	EXPORT LibOSDPTargets
+#	LIBRARY
+#		COMPONENT distributables
+#		DESTINATION ${LIBOSDP_LIBRARY_DIR}
+#	ARCHIVE
+#		COMPONENT distributables
+#		DESTINATION ${LIBOSDP_LIBRARY_DIR}
+#	PUBLIC_HEADER
+#		COMPONENT headers
+#		DESTINATION include/libosdp
+#)
 
 endif() # CONFIG_BUILD_SHARED
 
@@ -251,10 +253,10 @@ generate_export_header(${LIB_TARGET}
 	EXPORT_FILE_NAME ${PROJECT_BINARY_DIR}/include/osdp_export.h
 )
 
-install(FILES ${PROJECT_BINARY_DIR}/include/osdp_export.h
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/libosdp
-	COMPONENT headers
-)
+#install(FILES ${PROJECT_BINARY_DIR}/include/osdp_export.h
+#	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/libosdp
+#	COMPONENT headers
+#)
 
 # pkg-config file
 configure_file(
@@ -262,34 +264,34 @@ configure_file(
 	${CMAKE_BINARY_DIR}/libosdp.pc @ONLY
 )
 
-install(FILES ${CMAKE_BINARY_DIR}/libosdp.pc
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-	COMPONENT config_files
-)
+#install(FILES ${CMAKE_BINARY_DIR}/libosdp.pc
+#        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+#        COMPONENT config_files
+#)
 
 ## Package Configuration
 
 include(CMakePackageConfigHelpers)
-install(EXPORT LibOSDPTargets
-	FILE LibOSDPTargets.cmake
-	NAMESPACE libosdp::
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libosdp
-	COMPONENT config_files
-)
-configure_package_config_file(
-	${PROJECT_SOURCE_DIR}/cmake/LibOSDPConfig.cmake.in
-	${CMAKE_BINARY_DIR}/LibOSDPConfig.cmake
-	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libosdp
-	NO_CHECK_REQUIRED_COMPONENTS_MACRO
-	INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}
-)
-write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/LibOSDPConfigVersion.cmake"
-	VERSION ${PROJECT_VERSION}
-	COMPATIBILITY SameMajorVersion
-)
-install(FILES
-          "${CMAKE_BINARY_DIR}/LibOSDPConfig.cmake"
-          "${CMAKE_CURRENT_BINARY_DIR}/LibOSDPConfigVersion.cmake"
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libosdp
-	COMPONENT config_files
-)
+#install(EXPORT LibOSDPTargets
+#        FILE LibOSDPTargets.cmake
+#        NAMESPACE libosdp::
+#        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libosdp
+#        COMPONENT config_files
+#)
+#configure_package_config_file(
+#        ${PROJECT_SOURCE_DIR}/cmake/LibOSDPConfig.cmake.in
+#        ${CMAKE_BINARY_DIR}/LibOSDPConfig.cmake
+#        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libosdp
+#        NO_CHECK_REQUIRED_COMPONENTS_MACRO
+#        INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}
+#)
+#write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/LibOSDPConfigVersion.cmake"
+#        VERSION ${PROJECT_VERSION}
+#        COMPATIBILITY SameMajorVersion
+#)
+#install(FILES
+#          "${CMAKE_BINARY_DIR}/LibOSDPConfig.cmake"
+#          "${CMAKE_CURRENT_BINARY_DIR}/LibOSDPConfigVersion.cmake"
+#        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/libosdp
+#        COMPONENT config_files
+#)
